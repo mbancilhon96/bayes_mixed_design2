@@ -1,0 +1,95 @@
+<div id="directions">
+
+<h1>Practice</h1>
+
+<h2>Dot Pattern Memory Test</h2>
+
+<!-- <img src="modules/secondary_demo.jpg" width="100%">
+ -->
+<!--  <img src="modules/calibration_gif3.gif" width="100%">
+ -->
+<div id="viewPatternDiv">
+ <p style="width: 700px";></p>
+
+ <button id="viewPattern" class="example_c" onclick="drawSample()">View Pattern</button>
+</div>
+
+<div id="answer_question" style="display:none">
+	<p style="color:red">Please select 4 cells</p>
+</div>
+
+<div id="testContainer" style="margin-bottom: 1cm">
+	<p style="width: 700px";></p>
+</div>
+
+<svg id="gridContainer" width=500 height=400></svg>
+
+
+
+<!-- <button id="start" type="button" class="nextButton" style="float:right; margin-right: 150px; margin-top:350px">Next</button>
+ -->
+</p>
+</div>
+
+<style>
+<style>
+	  #testContainer{
+	     margin-bottom: 1cm;
+	  }
+</style>
+</style>
+
+<script>
+var rects=["0","1","2","3","4","5","6","7","8"]
+var dots
+var data={}
+var timeoutSample
+
+document.getElementById('viewPatternDiv').style.display="block"
+document.getElementById('answer_question').style.display="none"
+// document.getElementById('testContainer').style.display="none"
+// document.getElementById('start').style.display="none"
+
+console.log("id now is ", experimentr.get_currentId())
+
+
+function drawBlank(){
+	console.log("IN DRAW BLANK")
+
+	document.getElementById('viewPatternDiv').style.display="none"
+	document.getElementById('testContainer').style.display="none"
+
+
+	dots=shuffle(rects).slice(0,4) //shuffle array, pick 4
+
+	// console.log("dots is ",dots)
+	console.log("id is", experimentr.get_currentId())
+
+	var squares= d3.select('svg').append("g")
+
+	console.log("clicked")
+	
+	squares
+	  	.append('rect')
+	  	.attr("x",100)
+	  	.attr("y",70)
+	  	.attr("width",300)
+	  	.attr("height",300)
+	  	.attr("fill","lightgrey")
+	  	.style("stroke","lightgrey")
+	  	.style("stroke-width", 0.5);
+
+
+	timeoutSample=setTimeout(function(){
+		experimentr.addData(data)
+		experimentr.next()
+	},250)
+
+}
+
+
+drawBlank()
+
+experimentr.hideNext();
+
+</script>

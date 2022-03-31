@@ -1,0 +1,68 @@
+<div id="directions">
+
+<h1 id="title"></h1>
+
+
+<p>
+In this task, you will complete the <text style="font-weight:bold">Statistical Reasoning Task</text>. There is no dot pattern to remember.
+</p>
+
+<p>
+You will be asked to answer two questions worth $0.5 each if answered correctly, for a total of $1.
+</p>
+
+<h2>Subjective Workload</h2>
+<p>You will be asked to rate on a sliding scale the task's mental, physical and temporal workload as well as frustration, confidence, effort and other metrics.</p>
+
+<h2 id="spatial_title">Spatial Ability Test</h2>
+<p id="spatial_text">This test consists of a series of 20 questions to test your capacity to understand, reason, and remember the spatial relations among objects or space.</p> 
+
+<!-- <h2>Total Bonus</h2>
+Your base pay is $1. Your total bonus can range from $0 to $2.75 depending on your performance. -->
+
+<p style="clear:both;">
+After you have read the above instructions, click Start to begin the experiment. 
+<button id="start" type="button" class="regularButton">Start</button>
+</p>
+</div>
+
+<style>
+        #images {
+                
+        }
+</style>
+
+<script>
+(function() {
+
+        init(); 
+
+        function init() {
+                experimentr.hideNext(); 
+
+                d3.select('#start').on('click', experimentr.next); 
+
+        }
+}())
+var scenario_num=experimentr.getData().scenario_num
+console.log("in directions no load, scenario num is ",scenario_num)
+var scenarios=experimentr.getData().scenarios
+document.getElementById("title").innerHTML="Task "+ (scenario_num+1)+ " of "+((experimentr.getData().scenarios.length)-1)
+
+
+//include spatial ability is this is task 2 (last task)
+if (scenario_num==1){
+    document.getElementById("spatial_title").style.display="block"
+    document.getElementById("spatial_text").style.display="block"
+}
+else{
+    document.getElementById("spatial_title").style.display="none"
+    document.getElementById("spatial_text").style.display="none"	
+}
+
+
+
+</script>
+
+
+

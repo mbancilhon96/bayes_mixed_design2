@@ -1,0 +1,545 @@
+<h1>Practice</h1>
+
+<h2>Statistical Reasoning Task</h2>
+
+<div id="task">
+    <div id="first_task">
+        <h1 id="title"></h1>
+
+        <div id="defs">
+        </div>
+        <!-- INTRO 2 -->
+        <div class="cab">
+            <div id="intro" align="left" style="width: 700px";>
+            </div>
+            <br>
+            <div id="problem_text" align="left" style="width: 700px";>
+            </div>
+            <!--controls space around the four labels above the image-->
+            <div class="shelf" id="labels">
+              <span id="positive_text" style="margin:5px"></span>
+              <span id="negative_text" style="margin:5px"></span>
+              <span id="test_positive_text" style="margin:5px"></span>
+              <span id="test_negative_text" style="margin:5px"></span>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="container" id="simple-example">
+        </div>
+
+        <div id="see_questions"><button id="see_questions_btn" type="submit" class="regularButton" onClick=showQ() style="float:left">I'm ready to see the question.</button></div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div id="answers"></div>
+    </div>
+    <!-- <div id="nextBtn"><input type="submit" value="Next"></div>
+     -->
+    <div class="second_task" id ="second_task"></div>
+    <div  id ="submit_button"></div>
+</div>
+
+<!--controls empty space around vis-->
+<!-- <iframe id="nasatlx_iframe" width="1000" height="2000" frameBorder="0"></iframe> -->
+
+<script type="text/javascript">
+//=======primary task global variables========
+
+var ans1={ //answers to the first question
+    "disease": 20
+}
+var ans2={ //answers to the second question
+    "disease": 4
+}
+var q1={ //first question text
+    "disease": "How many people will test positive?"
+}
+
+var q2={ //second question text
+    "disease":  "Of those who test positive, how many actually have the disease?"
+
+}
+
+var intros={
+"disease": "There is a newly discovered disease, Disease X, which is transmitted by a bacterial infection found in the population. There is a test to detect whether or not a person has the disease, but it is not perfect. Here is some information about the current research on Disease X and efforts to test for the infection that causes it."
+}
+
+var problem_text={
+"disease":  "There is a total of 100 people in the population. Out of the 100 people in the population, 6 people actually have the disease. Out of these 6 people, 4 will receive a positive test result and 2 will receive a negative test result. On the other hand, 94 people do not have the disease (i.e., they are perfectly healthy). Out of these 94 people, 16 will receive a positive test result and 78 will receive a negative test result."
+}
+
+var data_vis_grouped= {
+"disease":[[1, 2, 3, 4],[5, 6],[7, 8, 9, 10, 11, 12, 13, 14, 24, 25, 26, 27, 28, 29, 30, 31]]
+//1st: orange guys within the yellow box
+//2nd: grey guys within the yellow box
+//3rd: orange guys as part of the blue box
+}
+
+var margin = {top:10, bottom:0, left:0, right:0}; //top margin controls how close image is to line above
+var icon_scale = '.05';  //this makes the people 13.44 X 35.84
+//var scenario_num=0;
+var condition_num=0;
+
+var scenario, condition, data_num_positive_test_positive, data_num_positive_test_negative, data_num_negative_test_positive,width,width2, height,height2,icon_width, icon_width2, data_words
+
+var bonus=0
+var totalBonus=0
+
+//=======secondary task global variables========
+
+var nextPage=1;
+
+var dateInitial=new Date()
+var timeInitial=dateInitial.getTime()
+
+
+var timeout;
+var d_primes=[]
+
+var ans={}
+var data={}
+
+
+var data={}
+var scenario_num
+
+function initialize(){
+    console.log("in initialize")
+    clearTimeout(timeout)
+
+    scenario="disease"
+
+    data_num_positive_test_positive = data_vis_grouped[scenario][0]; //blue cars correctly identified as blue: 12
+    data_num_positive_test_negative = data_vis_grouped[scenario][1];         //green cars incorrectly identified as blue: 17
+    data_num_negative_test_positive = data_vis_grouped[scenario][2]; //blue cars: 15
+
+
+    condition=experimentr.getData().conditions
+    console.log("condition is ",condition)
+    data['practice_'+scenario+"_condition"]=condition
+
+    d3.select("#next-button").style("visibility","hidden")
+
+        //document.getElementById("title").innerHTML="Reasoning Study"
+    document.getElementById("intro").innerHTML=intros["disease"]
+    document.getElementById("problem_text").innerHTML=problem_text["disease"]
+    document.getElementById("positive_text").innerHTML="Has Disease"
+    document.getElementById("negative_text").innerHTML="Do not have disease"
+    document.getElementById("test_positive_text").innerHTML="Test positive"
+    document.getElementById("test_negative_text").innerHTML="Test negative"
+    width = 100;
+    width2 = 600;
+    height = 125;
+    height2 = 250;
+    icon_width = 2;
+    icon_width2 = 17;
+    
+    if (condition=="text"){
+        document.getElementById('labels').style.display="none"
+        document.getElementById('simple-example').style.display="none"
+        document.getElementById('problem_text').style.display="block"
+    }
+    else if (condition=="vis"){
+        document.getElementById('simple-example').style.display="block"
+        document.getElementById('labels').style.display="block"
+        document.getElementById('problem_text').style.display="none"
+        checks()
+    }
+    else if (condition=="vistext"){
+      document.getElementById('simple-example').style.display="block"
+        document.getElementById('labels').style.display="block"
+        document.getElementById('problem_text').style.display="block"
+        checks()
+    }
+     //checks()
+}
+
+(function() {
+  initialize();
+})();
+
+function checks() {
+
+    d3.selectAll('svg').remove();
+    d3.select('#simple-example')
+        .append('svg')
+            .attr('id', 'test')
+            .attr('width', width + width2)
+            .attr('height', height2) //controls how close the "I am ready to see the next question" button appears
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')'); //controls where on the screen the image appears
+
+    //append svg defs
+    d3.select('#defs')
+        .append('svg')
+            .attr('height', 0)
+        .append('defs')
+        //.append('g')
+         //   .attr('id', 'icon')
+        .append("path")
+            .attr('id', 'icon')
+            .attr('d', 'M96 0c35.346 0 64 28.654 64 64s-28.654 64-64 64-64-28.654-64-64S60.654 0 96 0m48 144h-11.36c-22.711 10.443-49.59 10.894-73.28 0H48c-26.51 0-48 21.49-48 48v136c0 13.255 10.745 24 24 24h16v136c0 13.255 10.745 24 24 24h64c13.255 0 24-10.745 24-24V352h16c13.255 0 24-10.745 24-24V192c0-26.51-21.49-48-48-48z')
+            .attr('style', 'fill: var(--primary-color)');
+    draw_start()
+}
+
+function draw_start() {
+    var layout = d3_iconarray.layout().width(icon_width);
+    var layout2 = d3_iconarray.layout().width(icon_width2);
+
+    var data = d3.range(1,(data_num_positive_test_positive.length+data_num_positive_test_negative.length+1), 1);
+    var data2 = d3.range((data_num_positive_test_positive.length+data_num_positive_test_negative.length+1), 101, 1);
+
+    var grid = layout(data);
+    var grid2 = layout2(data2);
+
+    var arrayScale = d3_iconarray.scale()
+                                .domain([0, layout.maxDimension(data.length)])
+                                .range([0, width + (data_num_positive_test_positive.length+data_num_positive_test_negative.length)])
+                                .gapSize(0);
+    var arrayScale2 = d3_iconarray.scale()
+                            .domain([0, layout2.maxDimension(data2.length)])
+                            .range([0, width2])
+                            .gapSize(0);
+
+    if (scenario=="rolex" || scenario=="class"|| scenario=="cookies"  ||  scenario=="cab" || scenario=="admissions"){
+        var full_svg = d3.select('#test')
+                            .append('svg')
+                                .attr('width', width+30)
+                                .attr('height', height)
+                                .attr('id', 'full_svg')
+                            .append('g')
+                                .attr('id', 'big_g');
+    }
+    else{
+         var full_svg = d3.select('#test')
+                            .append('svg')
+                                .attr('width', width)
+                                .attr('height', height)
+                                .attr('id', 'full_svg')
+                            .append('g')
+                                .attr('id', 'big_g');
+    }
+    var full_svg2 = d3.select('#test')
+                        .attr('width', width+ width2+300)
+                .append('svg')
+                    .attr('width', width2+400)
+                    .attr('height', height2)
+                    .attr('id', 'full_svg2')
+                .append('g')
+                    .attr('id', 'big_g2');
+
+    full_svg.selectAll('g')
+            .data(grid)
+                .enter()
+            .append('rect')
+                .attr('transform', function(d) {
+                    return 'translate(' + (arrayScale(d.position.x))*0.95 + ',' + (arrayScale(d.position.y))*0.95 + ')'; //position of yellow rect (x,y)
+                })
+                .attr('class', function(d) {
+                    if (data_num_positive_test_positive.includes(d.data)) {
+                        return 'have_disease_rect test_positive_rect have_disease_test_positive_rect';
+                    } else if (data_num_positive_test_negative.includes(d.data)) {
+                        return 'have_disease_rect test_negative_rect have_disease_test_negative_rect';
+                    } else if (data_num_negative_test_positive.includes(d.data)) {
+                        return 'do_not_have_disease_rect test_positive_rect do_not_have_disease_test_positive_rect';
+                    } else {
+                        return 'do_not_have_disease_rect test_negative_rect do_not_have_disease_test_negative_rect';
+                    }
+                });
+
+    full_svg.selectAll('g')
+            .data(grid)
+                .enter()
+            .append('g')
+                .attr('transform', function(d) {
+                    return 'translate(' + (arrayScale(d.position.x) + 11) + ',' + (arrayScale(d.position.y) + 4) + ')'; //position of yellow ppl (x,y)
+                })
+            .call(function(parent) {
+                parent.append('use')
+                    .attr('class', function(d) {
+                        if (data_num_positive_test_positive.includes(d.data)) {
+                            return 'have_disease test_positive have_disease_test_positive';
+                        } else if (data_num_positive_test_negative.includes(d.data)) {
+                            return 'have_disease test_negative have_disease_test_negative';
+                        } else if (data_num_negative_test_positive.includes(d.data)) {
+                            return 'do_not_have_disease test_positive do_not_have_disease_test_positive';
+                        } else {
+                            return 'do_not_have_disease test_negative do_not_have_disease_test_negative';
+                        }
+                    })
+                    .attr('xlink:href','#icon')
+                    .attr('transform','scale(' + icon_scale + ')');
+            });
+
+    full_svg.selectAll('g#big_g')
+            .data(grid)
+                .enter()
+            .append('ellipse')
+                .attr('rx', 12)
+                .attr('ry', 16)
+                .attr('cx', 16)
+                .attr('cy', 17)
+                .attr('transform', function(d) {
+
+                    return 'translate(' + (arrayScale(d.position.x)) + ',' + (arrayScale(d.position.y)) + ')';
+                })
+                .attr('class', function(d) {
+                    if (data_num_positive_test_positive.includes(d.data)) {
+                        return 'have_disease_cir test_positive_cir have_disease_test_positive_cir';
+                    } else if (data_num_positive_test_negative.includes(d.data)) {
+                        return 'have_disease_cir test_negative_cir have_disease_test_negative_cir';
+                    } else if (data_num_negative_test_positive.includes(d.data)) {
+                        return 'do_not_have_disease_cir test_positive_cir do_not_have_disease_test_positive_cir';
+                    } else {
+                        return 'do_not_have_disease_cir test_negative_cir do_not_have_disease_test_negative_cir';
+                    }
+                });
+
+    full_svg2.selectAll('g')
+            .data(grid2)
+                .enter()
+            .append('rect')
+                .attr('transform', function(d) {
+                    return 'translate(' + (arrayScale2(d.position.x) + 40*icon_width)*0.99 + ',' + (arrayScale2(d.position.y))*0.99 + ')'; //position of blue rect (x,y)
+                })
+                .attr('class', function(d) {
+                    if (data_num_positive_test_positive.includes(d.data)) {
+                        return 'have_disease_rect test_positive_rect have_disease_test_positive_rect';
+                    } else if (data_num_positive_test_negative.includes(d.data)) {
+                        return 'have_disease_rect test_negative_rect have_disease_test_negative_rect';
+                    } else if (data_num_negative_test_positive.includes(d.data)) {
+                        return 'do_not_have_disease_rect test_positive_rect do_not_have_disease_test_positive_rect';
+                    } else {
+                        return 'do_not_have_disease_rect test_negative_rect do_not_have_disease_test_negative_rect';
+                    }
+                });
+
+    full_svg2.selectAll('g')
+            .data(grid2)
+                .enter()
+            .append('g')
+                .attr('transform', function(d) {
+                    return 'translate(' + (arrayScale2(d.position.x) + ((40*icon_width)+10)) + ',' + (arrayScale2(d.position.y) + 4) + ')'; //position of ppl in blue rect (x,y)
+                })
+            .call(function(parent) {
+                parent.append('use')
+                    .attr('class', function(d) {
+                        if (data_num_positive_test_positive.includes(d.data)) {
+                            return 'have_disease test_positive have_disease_test_positive';
+                        } else if (data_num_positive_test_negative.includes(d.data)) {
+                            return 'have_disease test_negative have_disease_test_negative';
+                        } else if (data_num_negative_test_positive.includes(d.data)) {
+                            return 'do_not_have_disease test_positive do_not_have_disease_test_positive';
+                        } else {
+                            return 'do_not_have_disease test_negative do_not_have_disease_test_negative';
+                        }
+                    })
+                    .attr('xlink:href','#icon')
+                    .attr('transform','scale(' + icon_scale + ')');
+            });
+
+     full_svg2.selectAll('g#big_g2')
+            .data(grid2)
+                .enter()
+            .append('ellipse')
+                .attr('rx', 12)
+                .attr('ry', 16)
+                .attr('cx', 16)
+                .attr('cy', 17)
+                .attr('transform', function(d) {
+
+                    return 'translate(' + (arrayScale2(d.position.x) + 40*icon_width) + ',' + (arrayScale2(d.position.y)) + ')';
+                })
+                .attr('class', function(d) {
+                    if (data_num_positive_test_positive.includes(d.data)) {
+                        return 'have_disease_cir test_positive_cir have_disease_test_positive_cir';
+                    } else if (data_num_positive_test_negative.includes(d.data)) {
+                        return 'have_disease_cir test_negative_cir have_disease_test_negative_cir';
+                    } else if (data_num_negative_test_positive.includes(d.data)) {
+                        return 'do_not_have_disease_cir test_positive_cir do_not_have_disease_test_positive_cir';
+                    } else {
+                        return 'do_not_have_disease_cir test_negative_cir do_not_have_disease_test_negative_cir';
+                    }
+                });
+
+    d3.select(self.frameElement).style("height", height + "px");
+}
+
+function draw_have_disease(background_y_n, peeps_y_n) {
+    if (background_y_n === 'no') {
+        d3.selectAll('.have_disease_rect')
+            .attr('opacity', 0);
+    } else {
+        d3.selectAll('.have_disease_rect')
+            .attr('opacity', 1);
+    }
+    if (peeps_y_n === 'no') {
+        d3.selectAll('.have_disease_rect')
+            .attr('opacity', 0);
+        d3.selectAll('.have_disease')
+            .attr('opacity', 0);
+    } else {
+        d3.selectAll('.have_disease_rect')
+            .attr('opacity', 1);
+        d3.selectAll('.have_disease')
+            .attr('opacity', 1);
+    }
+}
+
+function draw_do_not_have_disease(background_y_n, peeps_y_n) {
+    if (background_y_n === 'no') {
+        d3.selectAll('.do_not_have_disease_rect')
+            .attr('opacity', 0);
+    } else {
+        d3.selectAll('.do_not_have_disease_rect')
+            .attr('opacity', 1);
+    }
+    if (peeps_y_n === 'no') {
+        d3.selectAll('.do_not_have_disease_rect')
+            .attr('opacity', 0);
+        d3.selectAll('.do_not_have_disease')
+            .attr('opacity', 0);
+    } else {
+        d3.selectAll('.do_not_have_disease_rect')
+            .attr('opacity', 1);
+        d3.selectAll('.do_not_have_disease')
+            .attr('opacity', 1);
+    }
+}
+
+function draw_test_positive(background_y_n, peeps_y_n) {
+    if (background_y_n === 'no') {
+        d3.selectAll('.test_positive_rect')
+            .attr('opacity', 0);
+    } else {
+        d3.selectAll('.test_positive_rect')
+            .attr('opacity', 1);
+    }
+    if (peeps_y_n === 'no') {
+        d3.selectAll('.test_positive_rect')
+            .attr('opacity', 0);
+        d3.selectAll('.test_positive')
+            .attr('opacity', 0);
+    } else {
+        d3.selectAll('.test_positive_rect')
+            .attr('opacity', 1);
+        d3.selectAll('.test_positive')
+            .attr('opacity', 1);
+    }
+}
+
+function draw_test_negative(background_y_n, peeps_y_n) {
+    if (background_y_n === 'no') {
+        d3.selectAll('.test_negative_rect')
+            .attr('opacity', 0);
+    } else {
+        d3.selectAll('.test_negative_rect')
+            .attr('opacity', 1);
+    }
+    if (peeps_y_n === 'no') {
+        d3.selectAll('.test_negative_rect')
+            .attr('opacity', 0);
+        d3.selectAll('.test_negative')
+            .attr('opacity', 0);
+    } else {
+        d3.selectAll('.test_negative_rect')
+            .attr('opacity', 1);
+        d3.selectAll('.test_negative')
+            .attr('opacity', 1);
+    }
+}
+
+var moves = [];
+
+
+function validate() {
+
+        var a1 = document.getElementById("ans1");
+        var a2 = document.getElementById("ans2");
+
+        if (a1.value == "" || a2.value == "") {
+                alert("Please fill in both blanks then submit your answer.");
+        } else {
+                experimentr.endTimer('practice_'+'exp_'+scenario);
+
+                 if (a1.value==ans1[scenario] & a2.value==ans2[scenario]){
+                    data['practice_'+scenario+"_ans1_correct"]=1
+                    data['practice_'+scenario+"_ans2_correct"]=1
+                }
+                else{
+                     if (a1.value==ans1[scenario]){
+                        data['practice_'+scenario+"_ans1_correct"]=1
+                        data['practice_'+scenario+"_ans2_correct"]=0
+                    }
+                    else if (a2.value==ans2[scenario]){
+                        data['practice_'+scenario+"_ans2_correct"]=1
+                        data['practice_'+scenario+"_ans1_correct"]=0
+                    }
+                    else{
+                        data['practice_'+scenario+"_ans2_correct"]=0
+                        data['practice_'+scenario+"_ans1_correct"]=0
+                    }
+                }
+
+                condition_num++
+                console.log("scenario_num is ",experimentr.getData(data))
+                console.log("condition_num is ",condition_num)
+                data['practice_'+"ans1"]=a1.value
+                data['practice_'+"ans2"]=a2.value
+                document.getElementById("ans1").value=""
+                document.getElementById("ans2").value=""
+
+                //Remove visible questions
+                document.getElementById("answers").style.display="none"
+
+                //Remove submit button
+                document.getElementById("submit_button").style.display="none"
+
+                experimentr.addData(data)
+                console.log("data now is ",experimentr.getData())
+                console.log("sequence in static_grouped is ",experimentr.get_sequence())
+
+                console.log("nextPage is ",nextPage)
+
+                experimentr.next()
+
+        }
+
+ }
+function showQ() {
+        console.log("in showQ and scenario is", scenario)
+        console.log("q2 scenario is", q2[scenario])
+        document.getElementById('answers').innerHTML = '<p>(a)'+ q1[scenario]+'<input type="number" id="ans1"><br>(b)' + q2[scenario] + '<input type="number" id="ans2">.</p>';
+        document.getElementById('submit_button').innerHTML = '<button type="submit" class="regularButton" style="float:left" onClick=validate()>Submit</button>';
+        document.getElementById("answers").style.display="block"
+        document.getElementById("submit_button").style.display="block"
+        document.getElementById("second_task").style.display="block"
+        experimentr.startTimer('practice_'+'exp_'+scenario);
+        //nextPage++
+        document.getElementById('see_questions_btn').disabled="true"
+
+}
+
+    function shuffle(array) {
+      var currentIndex = array.length, temporaryValue, randomIndex;
+
+      // While there remain elements to shuffle...
+      while (0 !== currentIndex) {
+
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+      }
+
+      return array;
+    }
+
+</script>

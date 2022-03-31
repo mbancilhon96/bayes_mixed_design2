@@ -1,0 +1,164 @@
+<div id="directions">
+
+
+<h1>Cognitive Reflection Test</h1>
+
+<p id="question"></p>
+
+<input type="number" id="ans">
+
+<div id="ans_mc" style="visibility: hidden">
+    <INPUT TYPE="Radio" Name="q6_mc" id ="q6_mc" Value="a">Broken even in the stock market <br>
+    <INPUT TYPE="Radio" Name="q6_mc" id ="q6_mc" Value="b">Is ahead of where he began <br>
+    <INPUT TYPE="Radio" Name="q6_mc" id ="q6_mc" Value="c">Has lost money <br>
+</div>
+
+<br>
+<br>
+
+
+<button id="start" type="button" class="nextButton">Next</button>
+</p>
+</div>
+
+<div id="questionNum_displayContainer">
+<h2  id="questionNum_display" style="text-align:center; color:darkgrey">
+1 out of 6
+</h2>
+</div>
+<!-- <div class="container progress-container">
+  <div class="progress-holder">
+    <div class="progress" id="progress"></div>
+  </div>
+</div>
+ -->
+
+<style>
+        #images {
+                
+        }
+</style>
+
+<script>
+var scoreIntuitive=0
+var scoreCorrect=0
+var questionNum=0
+var data={}
+
+var questions=[
+"If three elves can wrap three toys in hour, how many elves are needed to wrap six toys in 2 hours?",
+"In an athletics team, tall members are three times more likely to win a medal than short members. This year the team has won 60 medals so far. How many of these have been won by short athletes?",
+"If John can drink one barrel of water in 6 days, and Mary can drink one barrel of water in 12 days, how long would it take them to drink one barrel of water together?",
+"Jerry received both the 15th highest and the 15th lowest mark in the class. How many students are in the class?",
+"A man buys a pig for $60, sells it for $70, buys it back for $80, and sells it finally for $90. How much has he made?",
+"Simon decided to invest $8,000 in the stock market one day early in 2008. Six months after he invested, on July 17, the stocks he had purchased were down 50 % .Fortunately for Simon, from July 17 to October 17, the stocks he had purchased went up 75%. At this point, Simon has:"
+]
+
+var answers_intuitive=[
+"6",
+"20",
+"9",
+"30",
+"10",
+"b"
+]
+var answers_correct=[
+"3",
+"15",
+"4",
+"29",
+"20",
+"c"
+]
+var user_answers=[]
+var CRT_bonus
+
+console.log("CRT sequence is ",experimentr.get_sequence())
+
+d3.select('#next-button').style("display","none")
+d3.select('#next-button').style("visibility","hidden")
+
+document.getElementById("question").innerHTML= questions[questionNum]
+
+// document.getElementById("progress").setAttribute("style","width: 0%")
+// var increment=100/(questions.length-1)
+
+d3.select('#start').on('click', function(){
+    console.log("questionNum is ",questionNum)
+
+    if (questionNum==questions.length-1){
+        console.log(document.querySelector('input[name="q6_mc"]:checked'))
+        if(document.querySelector('input[name="q6_mc"]:checked')!=null) {
+            var ans=document.querySelector('input[name="q6_mc"]:checked').value;
+        }
+        else{
+            var ans=""
+        }
+    }
+    else{
+        var ans=document.getElementById("ans").value
+    }
+
+    if (ans==""){
+        alert("Please answer the question before moving on.");
+    }
+    else{
+        questionNum++
+        document.getElementById("questionNum_display").innerHTML= questionNum+1 +" out of 6"
+        document.getElementById("question").innerHTML= questions[questionNum]
+
+        user_answers.push(ans)
+        data['CRT_q',questionNum]=ans
+        document.getElementById("ans").value=""
+
+        if (questionNum==questions.length-1){
+            console.log("last question")
+            document.getElementById("ans").style.visibility="hidden"
+            document.getElementById("ans_mc").style.visibility="visible"
+        }
+
+        if (questionNum==questions.length){
+            getScore()
+            console.log("scoreIntuitive is ",scoreIntuitive)
+            data['scoreIntuitive']=scoreIntuitive
+            data['scoreCorrect']=scoreCorrect
+            console.log("data is ",data)
+            experimentr.addData(data)
+            experimentr.next()
+            
+        }   
+    }
+    //increment progress bar
+    // var width= String(document.getElementById("progress").style.width)
+    // console.log("width is ",width)
+    // var newWidth=String((parseInt(width)+increment))+"%"
+    // console.log("newWidth is ",newWidth)
+    // document.getElementById("progress").setAttribute("style",`width:${newWidth}`)        
+}) 
+
+//compare answers to intuitive and correct
+
+function getScore(){
+    console.log("user answers is ",user_answers)
+    for (i in user_answers){
+        console.log("answer intuitive is ", answers_intuitive[i])
+        console.log("answer correct is ", answers_correct[i])
+        if (user_answers[i]==answers_intuitive[i]){
+            scoreIntuitive++
+        }
+        else if (user_answers[i]==answers_correct[i]){
+            scoreCorrect++
+        }
+    }
+    console.log("load condition is ",experimentr.getData().loadCondition)
+
+    CRT_bonus=0.5*scoreCorrect
+
+    console.log("CRT BONUS IS ",CRT_bonus)
+    experimentr.addBonuses(CRT_bonus,experimentr.get_currentId())
+    experimentr.addBonus(CRT_bonus)
+    console.log("DATA IS ",experimentr.getData())
+
+}
+
+</script>

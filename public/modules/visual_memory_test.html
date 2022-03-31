@@ -1,0 +1,287 @@
+<div id="visual_test">
+
+<h1>Visual Memory Test</h1>
+
+
+<svg id="container" width=600 height=600 style = "position:relative"></svg>
+
+<button id="yesButton" onclick="yesButton()"style = "position:relative; left:-550px; top:-100px; font-size: 18px; visibility:hidden;" >Yes</button>
+<button id="noButton" onclick="noButton()"style = "position:relative; left:-500px; top: -100px; font-size: 18px; visibility:hidden;">No</button> 
+<button id="readyButton" onclick="readyButton()"style = "position:relative; left:-500px; top: -250px; font-size: 18px; visibility:hidden;">Next</button> 
+
+</div>
+
+<style>
+
+</style>
+
+
+<script>
+
+//=====CHANGE DETECTION TEST======
+//SHOW A STUDY DISPLAY: AN ARRAY OF SQUARES OF DIFFERENT COLORS
+//SHOW A BLANK SCREEN
+//SHOW A TEST DISPLAY: DIFFERENT ARRAY WITH AT LEAST ONE DIFFERENT COLOR SQUARE
+//USERS MUST INDICATE WHETHER THE TEST DISPLAY IS IDENTICAL TO THE STUDY DISPLAY OR WHETHER A SINGLE ITEM HAS CHANGED COLOR
+//TASK REPEATS 120 TIMES WITH ARRAYS OF SIZE (4, 6, 8)
+//FINAL SCORES RANGE FROM 0 TO 6 BY AVERAGING THE SCORES OBTAINED FROM EACH ARRAY
+var rectWidth=350
+var rectHeight=350
+
+rect1=[[20,30],[80,160],[200,150],[260,250]]
+rect2=[20,80]
+
+var rect1_part1=rect1.slice(0,(rect1.length/2))
+var rect1_part2=rect1.slice((rect1.length/2),(rect1.length+1))
+
+console.log("rect part 1 is ",rect1_part1)	
+console.log("rect part 2 is ",rect1_part2)		
+
+
+var timeout
+var correct //1 if the user is correct about whether the rects changed, 0 if not
+var rectsChanged //1 if a rect color changed, 0 if not
+var n=3 //the number of times that we want the test to be conducted
+var count=1 //the number of times that the test has been conducted
+var correctArray=[] //an array of var correct; store whether the user is correct each round
+var newColor //index for colorArray
+var colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FFFF99', '#00B3E6', 
+		  '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
+		  '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A', 
+		  '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
+		  '#66994D', '#B366CC', '#4D8000', '#B33300', '#CC80CC', 
+		  '#66664D', '#991AFF', '#E666FF', '#4DB3FF', '#1AB399',
+		  '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680', 
+		  '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
+		  '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3', 
+		  '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
+
+function drawRects(){
+	console.log("drawRects called")
+	d3.select("#readyButton").style("visibility","hidden")
+	for (i=0; i<rect1.length; i++) {
+		newColor = Math.floor(Math.random() * colorArray.length);
+		d3.select('[id="' + i + '"]').style("visibility", "visible")
+			.attr("fill", colorArray[newColor])
+	}
+	rectsChanged = Math.floor(Math.random() * 2); //1 if rectangles changed, 0 if not
+	console.log("rectsChanged=", rectsChanged)
+	//rectsChanged = 1 //delete later, just for debugging
+		// .transition()
+		// .duration(5000)
+		// .attr("fill","red")
+		// .transition()
+		// .duration(5000)
+		// .attr("fill","yellow")
+		// d3.select("#rect").style("visibility", "visible")
+	timeout=setTimeout(delayScreen,100)
+}
+
+function blankScreen(){
+	d3.selectAll(".rects").style("visibility", "hidden")
+	d3.select("#greyRect").style("visibility", "visible")
+	//timeout=setTimeout(drawRects,300)
+}
+function delayScreen(){
+	d3.selectAll(".rects").style("visibility", "hidden")
+	d3.select("#greyRect").style("visibility", "visible")
+	timeout=setTimeout(visualQuestion,900)
+}
+
+function visualQuestion(){
+
+	d3.select("#greyRect").style("visibility", "visible") //removes grey rectangle
+
+	if (rectsChanged) {
+		var rectChangedIndex = Math.floor(Math.random()*rect1.length); //pick a random rectangle id to change
+		var colorChangedIndex = Math.floor(Math.random()*colorArray.length); //pick a random color to change
+		console.log("color change index: ", colorChangedIndex);
+		d3.select('[id="' + rectChangedIndex + '"]')
+			.attr("fill", colorArray[colorChangedIndex]) //changes color of random rect to new random color
+	}
+	d3.selectAll(".rects").style("visibility", "visible")
+
+	// Makes the "did the image change" text visible
+	d3.select("#text").style("visibility","visible")
+	//Makes the yes and no buttons visible
+	d3.select("#yesButton").style("visibility","visible")
+	d3.select("#noButton").style("visibility", "visible")
+}
+
+//when the yes  + no buttons are clicked, remember if their answer is right
+function yesButton() {
+	console.log("yes button clicked")
+	if (rectsChanged) {
+		correct = 1;
+	} else {
+		correct = 0;
+	}
+	correctArray.push(correct);
+	console.log(correctArray);
+	d3.select("#text").style("visibility","hidden")
+	d3.select("#yesButton").style("visibility","hidden")
+	d3.select("#noButton").style("visibility","hidden")
+	if (count<n) {
+		count++
+		d3.select("#readyButton").style("visibility","visible")
+	}
+}
+
+function noButton() {
+	console.log("no button clicked")
+	console.log("rectsChanged=", rectsChanged)
+	if (rectsChanged) {
+		correct = 0;
+		console.log("correct=", correct)
+	} else {
+		correct = 1;
+		console.log("correct=", correct)
+	}
+	correctArray.push(correct);
+	console.log(correctArray);
+	d3.select("#text").style("visibility","hidden")
+	d3.select("#yesButton").style("visibility","hidden")
+	d3.select("#noButton").style("visibility","hidden")
+	if (count<n) {
+		count++
+		d3.select("#readyButton").style("visibility","visible")
+	}
+}
+
+function readyButton() {
+	drawRects()
+}
+
+function initialize() {
+
+	// grey screen
+	d3.select("svg")
+		.append('rect')
+		.attr("id", "greyRect")
+		.attr("x",0)
+		.attr("y",0)
+		// .attr("width",rect1[rect1.length - 1] + 60) //Make the grey rect just wider than the image
+		.attr("width",rectWidth) 
+		.attr("height", rectHeight)
+		.attr("fill","lightgrey")
+		.style("visibility", "visible") //removes grey rectangle
+		
+	//centre cross
+	d3.select("svg")
+		.append("line")
+		.style("stroke", "white")  // colour the line
+		.style("stroke-width", 2)  // colour the line
+	  	.attr("x1", (rectWidth/2)-7)    // x position of the first end of the line
+	    .attr("y1", (rectWidth/2))      // y position of the first end of the line
+	    .attr("x2", (rectWidth/2)+7)     // x position of the second end of the line
+	    .attr("y2", (rectWidth/2))    // y position of the second end of the line
+		
+	d3.select("svg")
+		.append("line")
+		.style("stroke", "white")  // colour the line
+		.style("stroke-width", 2)  // colour the line
+	  	.attr("x1", (rectWidth/2))    // x position of the first end of the line
+	    .attr("y1", (rectWidth/2)-7)      // y position of the first end of the line
+	    .attr("x2", (rectWidth/2))     // x position of the second end of the line
+	    .attr("y2", (rectWidth/2)+7);    // y position of the second end of the line
+
+	//arrows
+	d3.select("svg")
+		.append("line")
+		.style("stroke", "white")  // colour the line
+		.style("stroke-width", 2)  // colour the line
+	  	.attr("x1", (rectWidth/2)-10)    // x position of the first end of the line
+	    .attr("y1", (rectWidth/2)-25)      // y position of the first end of the line
+	    .attr("x2", (rectWidth/2)+10)     // x position of the second end of the line
+	    .attr("y2", (rectWidth/2)-25)    // y position of the second end of the line
+
+	//arrowLeft
+	d3.select("svg")
+		.append("line")
+		.attr("class","arrowLeft")
+		.style("stroke", "white")  // colour the line
+		.style("stroke-width", 2)  // colour the line
+	  	.attr("x1", (rectWidth/2)-10)    // x position of the first end of the line
+	    .attr("y1", (rectWidth/2)-25)      // y position of the first end of the line
+	    .attr("x2", (rectWidth/2)+0)     // x position of the second end of the line
+	    .attr("y2", (rectWidth/2)-30)    // y position of the second end of the line
+	    .attr("visibility", "hidden")    
+				
+	d3.select("svg")
+		.append("line")
+		.attr("class","arrowLeft")
+		.style("stroke", "white")  // colour the line
+		.style("stroke-width", 2)  // colour the line
+	  	.attr("x1", (rectWidth/2)-10)    // x position of the first end of the line
+	    .attr("y1", (rectWidth/2)-25)      // y position of the first end of the line
+	    .attr("x2", (rectWidth/2)+0)     // x position of the second end of the line
+	    .attr("y2", (rectWidth/2)-20)    // y position of the second end of the line
+	    .attr("visibility", "hidden")    
+
+	//arrowRight
+	d3.select("svg")
+		.append("line")
+		.attr("class","arrowLeft")
+		.style("stroke", "white")  // colour the line
+		.style("stroke-width", 2)  // colour the line
+	  	.attr("x1", (rectWidth/2)+10)    // x position of the first end of the line
+	    .attr("y1", (rectWidth/2)-25)      // y position of the first end of the line
+	    .attr("x2", (rectWidth/2)+0)     // x position of the second end of the line
+	    .attr("y2", (rectWidth/2)-30)    // y position of the second end of the line
+	    .attr("visibility", "visible")    
+				
+	d3.select("svg")
+		.append("line")
+		.attr("class","arrowLeft")
+		.style("stroke", "white")  // colour the line
+		.style("stroke-width", 2)  // colour the line
+	  	.attr("x1", (rectWidth/2)+10)    // x position of the first end of the line
+	    .attr("y1", (rectWidth/2)-25)      // y position of the first end of the line
+	    .attr("x2", (rectWidth/2)+0)     // x position of the second end of the line
+	    .attr("y2", (rectWidth/2)-20)    // y position of the second end of the line
+	    .attr("visibility", "visible")    
+				
+	// 4 rects split into two halves
+	d3.select("svg")
+		.selectAll('.rects')
+		.data(rect1)
+		.enter()
+		.append('rect')
+		.attr('class',"rects")
+		.attr("id",function(d,i){
+			return i
+		})
+		.attr('x',function(d){
+			console.log("d[0] is" ,d[0])
+			return d[0]				
+
+		})
+		.attr('y',function(d){
+			console.log("d[1] is" ,d[1])
+			return d[1]	
+
+		})
+		.attr("width",40)
+		.attr("height",40)
+		.attr("fill",function(d,i){
+			return colorArray[i]
+		})
+		.style("visibility", "visible") //removes 4 rects
+
+
+	//adds "did the image change" text
+	d3.select("svg") 
+		.append("text")
+		.attr("id", "text")
+		.text("Did the image change?")
+		.attr("x",20)
+        .attr("y",450)
+		.attr("fill","black")
+		.style("font-size","22px")
+		.style("visibility", "hidden")
+}
+
+initialize()
+//blankScreen()
+
+</script>

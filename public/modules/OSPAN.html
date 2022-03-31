@@ -1,0 +1,114 @@
+<div id="OSPAN">
+
+<h1>OSPAN test</h1>
+
+<div id="question" style="display:none">
+	<h3>The answer is 5</h3> 
+    <INPUT TYPE="Radio" Name="true_false" id ="true" Value="true">True <br>
+    <INPUT TYPE="Radio" Name="true_false" id ="false" Value="false">False <br>
+    <br><br>
+    <button id="nextButton" type="button" class="nextButton">Next</button>
+
+</div>
+
+<svg id="svg" width=600 height=600 style = "position:relative">
+</svg>
+
+
+</div>
+
+
+<script>
+var images=shuffle(["http://marvel-force-chart.surge.sh/marvel_force_chart_img/top_spiderman.png","http://marvel-force-chart.surge.sh/marvel_force_chart_img/thanos.png"])
+var imageSample
+var rects=["0","1","2","3","4","5","6","7","8"]
+var n=-1
+selectStim()
+
+function selectStim(){
+	drawSample()
+}
+
+function drawSample(){
+	n=n+1
+	if (n<images.length){
+		console.log("images are ",images)
+		imageSample=images[n]
+
+
+		d3.select('svg')
+			.append('svg:image')
+		 	.attr("xlink:href", imageSample)
+		 	.attr("id",'imageSample')
+		 	.attr("class",'imageClass')
+		   	.attr("x", 60)
+		    .attr("y", 60)
+		    .attr('width', 100)
+		    .attr('height', 100)
+			.style("display","block")
+
+		var timeoutEquation=setTimeout(function(){
+			d3.select('svg').selectAll("*").remove();
+			// document.getElementById('imageSample').style.display="none"
+			drawEquation()
+				//clear svg
+		},1000)	
+	}
+}
+function drawEquation(){
+
+	if (n<images.length){
+		d3.csv("modules/ospan_equations.csv", function(csv) {
+			
+			var equation=csv[n].equation
+			console.log("equation is ",equation)
+
+			d3.select('svg')
+				.append('text')
+				.attr("id","equationSample")
+		 		.attr("class",'equationClass')
+			 	.text(equation)
+			   	.attr("x", 100)
+			    .attr("y", 100)	
+			    .attr("font-size",24)
+			    .style("display","block")
+		});
+
+		var timeoutSample=setTimeout(function(){
+			console.log("image is ",imageSample)
+			d3.select('svg').selectAll("*").remove();
+			// document.getElementById('equationSample').style.display="none"
+			drawQuestion()
+		},5000)		
+	}
+
+}
+function drawQuestion(){
+	document.getElementById('question').style.display="block"
+	d3.select('#nextButton').on("click",function(){
+		drawSample()
+		document.getElementById('question').style.display="none"
+
+	})
+	// document.getElementById('svg').innerHTML+="<br><br><br><h3>This is the text which has been inserted by JS</h3>";
+}
+
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+  return array;
+}
+
+</script>

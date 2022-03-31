@@ -1,0 +1,131 @@
+<iframe id="disqualified_iframe" width="1000" height="2000" frameBorder="0"></iframe>
+
+
+<div id="consent">
+
+<h1>Bayesian Task</h1>
+<p>
+We invite you to participate in a research study conducted by
+investigators from Washington University in St. Louis.  The purpose of
+the study is to evaluate how different representations of Bayesian data impact cognitive load. </p>
+
+
+
+<h3>Instructions</h3>
+<ul>
+	<li>In this HIT, you will complete a reasoning task followed by a cognitive reflection test and a spatial ability test.</li>
+	<li>You will be presented with a Bayesian problem. Read the prompt carefully and once you are ready, click on the button to answer two questions about the prompt</li>
+	<li>Once you are confident about your answers, click on the Submit button.</li>
+	<li>Next, we will conduct a Cognitive Relection Test consisting of 3 questions </li>
+	<li>Finally, we will conduct a Spatial Ability Test</li>
+	<li>Then you will be prompted for some basic demographic information questions (age, gender, and education). </li>
+	<li> The average completion time is 20 minutes</li>
+	<li><strong>Payment</strong></li>
+	<ul>
+		<li>You will receive a base pay of $1.00 for your participation</li>
+		<li><strong>Additional Bonus:</strong> We will determine your bonus based on how you perform on the task. You can win a total bonus of up to $3.25.</b>  </li>
+	</ul>
+</ul>
+
+
+<h3>Terms of Service</h3>
+<ul>
+	<li>Identifying information will <strong>never</strong> be used or shared. Your MTurk ID will be replaced with a random alphanumeric code.</li>
+	<li>Taking part in this research study is completely voluntary.  You may choose
+not to take part at all.  If you decide to be in this study, you may stop
+participating at any time. However, you may only get paid after finishing all the questions. Addditional, any data that was collected will remain as part of the study records and cannot be removed.</li>
+<li>For questions about the research study please contact: Alvitta Ottley, (alvitta@wustl.edu)</li>
+<li>If you have questions, concerns, or complaints about your rights as a research
+participant, please contact the Human Research Protection Office at 660 South
+Euclid Avenue, Campus Box 8089, St. Louis, MO  63110, 1-(800)-438-0445 or email
+hrpo@wusm.wustl.edu.   General information about being a research participant
+can be found on the Human Research Protection Office web site, <a href=http://hrpo.wustl.edu>http://hrpo.wustl.edu/</a>.
+To offer input about your experiences as a research participant or to speak to
+someone other than the research staff, call the Human Research Protection Office
+at the number above.</li>
+</ul>
+
+
+
+<p>
+Thank you very much for your consideration of this research study.
+</p>
+
+<!-- <p>
+Please enter your Amazon Worker ID. <b>You may only complete this HIT once.</b>
+Subsequent completions (e.g. reading the same story twice) will not be accepted:
+
+<br>
+<input type="text" id="workerId" name="workerId" size="30">
+<button id="checkId" type="button">Check ID</button>
+<br>
+
+<span id="invalidMessage">
+Our records show that you have taken part in this study before, so we cannot allow you
+to take this HIT again at this time. Please contact us if you feel this is in error.
+</span>
+</p> -->
+
+<p style="float: right;">
+"I am between the ages of 18 and 65, and I have read and understood the statements above."
+<button id="consentYes" disabled="true" type="button" class="regularButton">I Agree</button>
+</p>
+
+</div>
+
+
+<style>
+  #invalidMessage {
+    display: none;
+    color: red;
+  }
+  #experimentr {
+    margin: 4em auto 1em auto;
+    width: 720px;
+  }
+
+</style>
+
+<script  src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+ <script type="text/javascript">
+ 	var data={}
+ 	var ip_address
+
+ 	d3.select("#disqualified_iframe").style("display","none")
+ 	d3.select("#consent").style("display","block")
+
+	// window.addEventListener("mouseover", (event) => { //If the window is too small, make an alert and only let the user continue if they increase the window size
+	// 		// console.log(event)
+	// 		if (screen.height < 1024 || screen.width < 768){ //change to screen size
+	// 			console.log("screen too small")
+	// 			d3.select("#consent").style("display","none")
+	// 			d3.select("#disqualified_iframe").style("display","block").attr('src', `modules/disqualified.html`)
+
+	// 		}
+	// 		return;
+	// }, false);
+
+	experimentr.hideNext();
+
+	d3.select("#consentYes").attr("disabled",null)
+
+	// d3.select('#consentYes').attr('disabled', null);
+	d3.select('#consentYes').on("click",function(){
+		$.getJSON("https://api.ipify.org?format=json",function(data) {
+			data["ip_address"]=data.ip 
+		    console.log("ip address is ",data.ip);
+			experimentr.addData(data)
+        })
+
+		experimentr.next();
+	// 	console.log("consent clicked")
+	// 	if (window.innerHeight<700){
+	// 		alert("window too small")
+	// 	}
+	// 	else{
+	// 		this.attr('disabled', null)
+	// 	}
+	})
+
+</script>

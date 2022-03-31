@@ -1,0 +1,296 @@
+<div id="directions">
+
+<h1 id="title_practice">Practice</h1>
+<h2 id="small_title_pattern">Dot Pattern Memory Test</h2>
+
+<h1 id=big_title_pattern>Dot Pattern Memory Test</h1>
+
+
+<!-- <img src="modules/secondary_demo.jpg" width="100%">
+ -->
+<!--  <img src="modules/calibration_gif3.gif" width="100%">
+ -->
+<div id="viewPatternDiv">
+ <p style="width: 700px";>You will be presented with a dot pattern for 850 milliseconds that you will have to keep it in mind while solving a problem. Make sure you are focused on the screen and paying attention. Click on the button to reveal the pattern.</p>
+
+ <button id="viewPattern" class="example_c" onclick="drawSample()">View Pattern</button>
+</div>
+
+<div id="answer_question" style="display:none">
+	<p style="color:red">Please select 4 cells</p>
+</div>
+
+<div id="testContainer">
+	<p style="width: 700px";>Now you'll need recall the pattern you saw earlier. Click on the squares to indicate where the dots were located</p>
+</div>
+
+<svg id="gridContainer" width=600 height=400></svg>
+
+<button id="start" type="button" class="nextButton" style="float:right; margin-right: 100px; margin-top:350px">Next</button>
+
+</p>
+</div>
+
+<style>
+        #images {
+
+        }
+</style>
+
+<script>
+var rects=["0","1","2","3","4","5","6","7","8"]
+var dots
+var data={}
+var timeoutSample
+
+document.getElementById('viewPatternDiv').style.display="block"
+document.getElementById('testContainer').style.display="none"
+document.getElementById('start').style.display="none"
+document.getElementById('answer_question').style.display="none"
+
+console.log("id now is ", experimentr.get_currentId())
+
+var scenario_num=experimentr.getData().scenario_num
+
+if (scenario_num==-1){
+	var scenario="disease"
+}
+else{
+	var scenaros=experimentr.getData().scenarios
+	var scenario= scenarios[scenario_num]
+}
+
+console.log("drawStim scenario is ",scenario)
+
+console.log("scenario_num is", scenario_num)
+if (scenario_num==-1){  //disease: practice round
+	document.getElementById('title_practice').style.display="block"
+	document.getElementById('small_title_pattern').style.display="block"
+	document.getElementById('big_title_pattern').style.display="none"
+}
+else{
+	document.getElementById('title_practice').style.display="none"
+	document.getElementById('small_title_pattern').style.display="none"
+	document.getElementById('big_title_pattern').style.display="block"
+}
+
+function drawSample(){
+	document.getElementById('viewPatternDiv').style.display="none"
+	document.getElementById('testContainer').style.display="none"
+
+
+	dots=shuffle(rects).slice(0,4) //shuffle array, pick 4
+
+	// console.log("dots is ",dots)
+	console.log("id is", experimentr.get_currentId())
+
+	var squares= d3.select('svg').append("g")
+
+	console.log("clicked")
+	squares
+		.selectAll('rect')
+		.data(rects)
+		.enter()
+	  	.append('rect')
+	  	.attr("id",function(d,i){
+	  		return d
+	  	})
+	  	.attr("x",function(d,i){
+	  		return ((d%3)+1)*100
+	  	})
+	  	.attr("y",function(d,i){
+	  		return Math.floor(d/3)*100
+	  	})
+	  	.attr("width",100)
+	  	.attr("height",100)
+	  	.attr("fill","white")
+	  	.style("stroke","black")
+	  	.style("stroke-width", 0.5);
+
+	squares
+		.selectAll('circle')
+		.data(dots)
+		.enter()
+		.append("circle")
+	  	.attr("id",function(d,i){
+	  		return d
+	  	})
+	  	.attr("cx",function(d,i){
+	  		return ((d%3)+1)*100 + 50
+	  	})
+	  	.attr("cy",function(d,i){
+	  		return Math.floor(d/3)*100 + 50
+	  	})
+	  	.attr("r",15)
+
+	timeoutSample=setTimeout(function(){
+		experimentr.addData(data)
+		experimentr.next()
+	},850)
+
+}
+function drawTest(){
+	experimentr.startTimer(scenario+'_dot_pattern_rec')
+	document.getElementById('viewPatternDiv').style.display="none"
+	document.getElementById('testContainer').style.display="block"
+	document.getElementById('start').style.display="block"
+
+	var userAnswer=[]
+	var userClicks=[]
+
+
+	var squares= d3.select('svg').append("g")
+
+	squares.selectAll('rect')
+		.data(rects)
+		.enter()
+	  	.append('rect')
+	  	.attr("id",function(d,i){
+	  		return d
+	  	})
+	  	.attr("x",function(d,i){
+	  		return ((d%3)+1)*100
+	  	})
+	  	.attr("y",function(d,i){
+	  		return Math.floor(d/3)*100
+	  	})
+	  	.attr("width",100)
+	  	.attr("height",100)
+	  	.attr("fill","white")
+	  	.style("stroke","black")
+	  	.style("stroke-width", 0.5)
+	  	.on("click",function(d,i){
+	  		var circle=document.getElementById("c_"+d)
+	  		console.log("circle is ",circle)
+	  		if (circle.style.display=="none"){
+	  			circle.style.display="block"
+		  		userAnswer.push(this.id)
+		  		console.log("id is ",this.id)
+		  		console.log("userAnswer is ",userAnswer)
+		  		var click=[]
+		  		click.push(this.id,Date.now(),"select")
+		  		userClicks.push(click)
+	  		}
+	  		else if (circle.style.display=="block"){
+	  			circle.style.display="none"
+	  			var elementInd=userAnswer.indexOf(this.id)
+	  			userAnswer.splice(elementInd,1)
+	  			console.log("elementInd is ",elementInd)
+	  			console.log("id is ",this.id)
+		  		console.log("userAnswer is ",userAnswer)
+		  		var click=[]
+		  		click.push(this.id,Date.now(),"unselect")
+		  		userClicks.push(click)
+	  		}
+	  	})
+
+	squares.selectAll('circle')
+		.data(rects)
+		.enter()
+		.append("circle")
+	  	.attr("id",function(d,i){
+	  		return "c_"+d
+	  	})
+	  	.attr("cx",function(d,i){
+	  		return ((d%3)+1)*100 + 50
+	  	})
+	  	.attr("cy",function(d,i){
+	  		return Math.floor(d/3)*100 + 50
+	  	})
+	  	.attr("r",15)
+	  	.style("display","none")
+	  	.on("click",function(d,i){
+	  		var circle=this
+	  		if (circle.style.display=="none"){
+	  			circle.style.display="block"
+		  		userAnswer.push(d)
+		  		console.log("id is ",d)
+		  		console.log("userAnswer is ",userAnswer)
+		  		var click=[]
+		  		click.push(d,Date.now(),"select")
+		  		userClicks.push(click)
+	  		}
+	  		else if (circle.style.display=="block"){
+	  			circle.style.display="none"
+	  			var elementInd=userAnswer.indexOf(d)
+	  			userAnswer.splice(elementInd,1)
+	  			console.log("elementInd is ",elementInd)
+		  		console.log("id is ",d)
+		  		console.log("userAnswer is ",userAnswer)
+		  		var click=[]
+		  		click.push(d,Date.now(),"unselect")
+		  		userClicks.push(click)
+	  		}
+	  	})
+
+
+	d3.select('#start').on('click', function(){
+		if (userAnswer.length !=4){
+			console.log("length is not 4")
+			document.getElementById('answer_question').style.display="block"
+			document.getElementById('start').style.display="block"
+		}
+		else{
+			console.log("userAnswer is ",userAnswer)
+			let checker = (arr1, arr2) => arr2.every(v => arr1.includes(v));
+			arrEqual=checker(dots,userAnswer)
+			console.log("arrEqual is is ",arrEqual)
+			if (arrEqual){
+				console.log("loadTaskCorrect")
+				data[scenario+'loadTaskCorrect']=1
+				if (scenario!= "disease"){ //not practice task
+					console.log("bonus for dot task is ",0.5)
+					console.log("id is ",experimentr.get_currentId())
+	            	experimentr.addBonuses(0.5,experimentr.get_currentId())
+	            	experimentr.addBonus(0.5)
+	            }
+			}
+			else{
+				console.log("loadTaskIncorrect")
+				data['loadTaskCorrect']=0
+				if (scenario!= "disease"){ //not practice task
+					console.log("bonus for dot task is ",0.0)
+					console.log("id is ",experimentr.get_currentId())
+	            	experimentr.addBonuses(0.0,experimentr.get_currentId())
+	            	experimentr.addBonus(0)
+	            }
+			}
+			data[scenario+'_dot_correct_answer']=dots
+			data[scenario+'_dot_final_answer']=userAnswer
+			data[scenario+'_dot_clicks']=userClicks
+			experimentr.addData(data)
+			console.log("DATA IS ",experimentr.getData())
+			experimentr.endTimer(scenario+'_dot_pattern_rec')
+			experimentr.next()	
+			
+		}
+		
+	});
+
+}
+if (experimentr.get_currentId()==10 | experimentr.get_currentId()==14 | experimentr.get_currentId()==17){
+	console.log("drawing Test")
+	drawTest()
+}
+experimentr.hideNext();
+
+
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+  return array;
+}
+
+</script>

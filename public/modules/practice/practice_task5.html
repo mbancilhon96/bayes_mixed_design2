@@ -1,0 +1,22 @@
+<div id="practice">
+
+<h1>Practice</h1>
+
+<p style="width: 700px";>Great! Now we'll practice the Statistical Reasoning task. Click next to begin <br><br><p>
+
+
+<button id="next" type="button" class="regularButton" style="float:right; margin-right: 100px;">Next</button>
+
+<script>
+(function() {
+
+        init(); 
+
+        function init() {
+                experimentr.hideNext(); 
+
+                d3.select('#next').on('click', experimentr.next); 
+
+        }
+}())
+</script>

@@ -1,0 +1,106 @@
+<div id="directions">
+
+
+<h1>Practice</h1>
+
+<h2>Dot Pattern Memory Test</h2>
+
+
+<!-- <img src="modules/secondary_demo.jpg" width="100%">
+ -->
+<!--  <img src="modules/calibration_gif3.gif" width="100%">
+ -->
+<div id="viewPatternDiv" style=" margin-bottom: 3cm">
+ <p style="width: 700px";>Make sure you are focused on the screen and paying attention. Click the View Pattern button to reveal the pattern.</p>
+
+ <button id="viewPattern" class="example_c" onclick="drawSample()">View Pattern</button>
+</div>
+
+<div id="testContainer">
+	<p style="width: 700px";>Now you'll need recall the pattern you saw earlier. Click on the squares to indicate where the dots were located</p>
+</div>
+
+<svg id="gridContainer" width=600 height=400  style="margin-top: 2cm"></svg>
+
+<button id="start" type="button" class="nextButton" style="float:right">Next</button>
+
+</p>
+</div>
+
+<style>
+	  #viewPatternDiv{
+	     margin-bottom: 3cm;
+	  }
+</style>
+
+<script>
+var rects=["0","1","2","3","4","5","6","7","8"]
+var dots
+var data={}
+var timeoutSample
+
+document.getElementById('viewPatternDiv').style.display="block"
+document.getElementById('testContainer').style.display="none"
+document.getElementById('start').style.display="none"
+document.getElementById('start').style.float="right"
+
+document.getElementById('next-button').style.display="none"
+
+console.log("id now is ", experimentr.get_currentId())
+
+
+function drawSample(){
+	document.getElementById('viewPatternDiv').style.display="none"
+	document.getElementById('testContainer').style.display="none"
+
+
+	dots=shuffle(rects).slice(0,4) //shuffle array, pick 4
+
+	// console.log("dots is ",dots)
+	console.log("id is", experimentr.get_currentId())
+
+	var squares= d3.select('svg').append("g")
+
+	console.log("clicked")
+	squares
+		.selectAll('rect')
+		.data(rects)
+		.enter()
+	  	.append('rect')
+	  	.attr("id",function(d,i){
+	  		return d
+	  	})
+	  	.attr("x",function(d,i){
+	  		return ((d%3)+1)*100
+	  	})
+	  	.attr("y",function(d,i){
+	  		return Math.floor(d/3)*100
+	  	})
+	  	.attr("width",100)
+	  	.attr("height",100)
+	  	.attr("fill","white")
+	  	.style("stroke","black")
+	  	.style("stroke-width", 0.5);
+
+	squares
+		.selectAll('circle')
+		.data(dots)
+		.enter()
+		.append("circle")
+	  	.attr("id",function(d,i){
+	  		return d
+	  	})
+	  	.attr("cx",function(d,i){
+	  		return ((d%3)+1)*100 + 50
+	  	})
+	  	.attr("cy",function(d,i){
+	  		return Math.floor(d/3)*100 + 50
+	  	})
+	  	.attr("r",15)
+
+	timeoutSample=setTimeout(function(){
+		experimentr.addData(data)
+		experimentr.next()
+	},1000)
+
+}

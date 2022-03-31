@@ -1,0 +1,80 @@
+<div class="w3-container">
+<!-- Demographics style stolen from labinthewild.org experiments -->
+
+<h3> Bonus </h3>
+<div id="table" class="w3-table"> </div>
+
+</div>
+<!-- <button id="next-button" type="button">Next</button>
+ -->
+
+
+<script> 
+(function() {
+  var data = {};
+  experimentr.startTimer('bonus');
+  experimentr.release();
+  
+  document.getElementById('next-button').style.display="block"
+  d3.select("#next-button").style("visibility","visible")
+
+
+  d3.select('#next-button')
+		.on('click', function(){
+			experimentr.endTimer('bonus');
+			experimentr.addData(data);
+			experimentr.next(); });
+
+  
+  var table = d3.select('#table')
+      .append('table')
+      
+  var tr = table.append('tr');
+  tr.append('th').html();
+
+  experimentr.getBonuses().forEach(function(d, i){
+    console.log("index is ",i)
+    console.log("data is ",d)
+
+    tr = table.append('div');
+    if (experimentr.getData().loadConditions[0]=="load"){
+          console.log("gets in load if")
+          if (i==13){
+              tr.html('$'+d+ '&nbsp&nbsp&nbsp&nbsp    <b>' + 'Statistical Reasoning Task 1');
+          }
+          if (i==14){
+              tr.html('$'+d+ '&nbsp&nbsp&nbsp&nbsp    <b>'  + 'Dot Pattern Memory Task ');
+          }
+          if (i==17){
+              console.log("gets in i=17")
+              tr.html('$'+d+ '&nbsp&nbsp&nbsp&nbsp    <b>' + 'Statistical Reasoning Task 2');
+          }
+
+    }
+    if (experimentr.getData().loadConditions[0]=="no_load"){
+          console.log("gets in no load if")
+          if (i==12){
+              tr.html('$'+d+ '&nbsp&nbsp&nbsp&nbsp    <b>' + 'Statistical Reasoning Task 1');
+          }
+          if (i==16){
+              tr.html('$'+d+ '&nbsp&nbsp&nbsp&nbsp    <b>' + 'Statistical Reasoning Task 2');
+          }
+          if (i==17){
+              console.log("gets in i=17")
+              tr.html('$'+d+ '&nbsp&nbsp&nbsp&nbsp    <b>'  + 'Dot Pattern Memory Task ');
+          }
+    }
+    // tr.html('Sheet ' + (i+1) + ' &nbsp&nbsp&nbsp&nbsp     <b>$' + (d/100).toFixed(2) + '</b>');
+  });
+  
+  tr = table.append('div');
+  tr.html('$'+2+ '&nbsp&nbsp&nbsp&nbsp    <b>'  + 'Base Pay ');
+
+  tr = table.append('div');
+  console.log("total bonus is "+ experimentr.getBonus())
+  tr.html('<h3>$' + (parseFloat(experimentr.getBonus())+2) + '&nbsp&nbsp&nbsp&nbsp Total Expected Pay</h3>');
+  
+  
+
+}());
+</script>

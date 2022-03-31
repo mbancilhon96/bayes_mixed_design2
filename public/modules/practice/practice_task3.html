@@ -1,0 +1,246 @@
+<div id="directions">
+
+<h1>Practice</h1>
+
+<h2>Dot Pattern Memory Test</h2>
+
+<!-- <img src="modules/secondary_demo.jpg" width="100%">
+ -->
+<!--  <img src="modules/calibration_gif3.gif" width="100%">
+ -->
+<div id="viewPatternDiv">
+ <p style="width: 700px";>You will be presented with a dot pattern for 850 milliseconds that you will have to keep it in mind while solving a problem. Make sure you are focused on the screen and paying attention. Click on the button to reveal the pattern.</p>
+
+ <button id="viewPattern" class="example_c" onclick="drawSample()">View Pattern</button>
+</div>
+
+<div id="answer_question" style="display:none">
+	<p style="color:red">Please select 4 cells</p>
+</div>
+
+<div id="testContainer" style="margin-bottom: 1cm">
+	<p style="width: 700px";>Now you'll need to recall the pattern you saw earlier. Click on the squares to indicate where the dots were located. Remember that you can also remove dots by clicking on the corresponding cell.</p>
+</div>
+
+<svg id="gridContainer" width=500 height=400></svg>
+
+
+
+<button id="start" type="button" class="nextButton" style="float:right; margin-right: 150px; margin-top:350px">Next</button>
+
+</p>
+</div>
+
+<style>
+<style>
+	  #testContainer{
+	     margin-bottom: 1cm;
+	  }
+</style>
+</style>
+
+<script>
+var rects=["0","1","2","3","4","5","6","7","8"]
+var dots
+var data={}
+var timeoutSample
+
+document.getElementById('viewPatternDiv').style.display="block"
+document.getElementById('answer_question').style.display="none"
+document.getElementById('testContainer').style.display="none"
+document.getElementById('start').style.display="none"
+
+console.log("id now is ", experimentr.get_currentId())
+
+
+function drawSample(){
+	document.getElementById('viewPatternDiv').style.display="none"
+	document.getElementById('testContainer').style.display="none"
+
+
+	dots=shuffle(rects).slice(0,4) //shuffle array, pick 4
+
+	// console.log("dots is ",dots)
+	console.log("id is", experimentr.get_currentId())
+
+	var squares= d3.select('svg').append("g")
+
+	console.log("clicked")
+	squares
+		.selectAll('rect')
+		.data(rects)
+		.enter()
+	  	.append('rect')
+	  	.attr("id",function(d,i){
+	  		return d
+	  	})
+	  	.attr("x",function(d,i){
+	  		return ((d%3)+1)*100
+	  	})
+	  	.attr("y",function(d,i){
+	  		return Math.floor(d/3)*100
+	  	})
+	  	.attr("width",100)
+	  	.attr("height",100)
+	  	.attr("fill","white")
+	  	.style("stroke","black")
+	  	.style("stroke-width", 0.5);
+
+	squares
+		.selectAll('circle')
+		.data(dots)
+		.enter()
+		.append("circle")
+	  	.attr("id",function(d,i){
+	  		return d
+	  	})
+	  	.attr("cx",function(d,i){
+	  		return ((d%3)+1)*100 + 50
+	  	})
+	  	.attr("cy",function(d,i){
+	  		return Math.floor(d/3)*100 + 50
+	  	})
+	  	.attr("r",15)
+
+	timeoutSample=setTimeout(function(){
+		experimentr.addData(data)
+		experimentr.next()
+	},1000)
+
+}
+function drawTest(){
+	experimentr.startTimer('practice_dot_pattern')
+	document.getElementById('viewPatternDiv').style.display="none"
+	document.getElementById('testContainer').style.display="block"
+	document.getElementById('start').style.display="block"
+
+	var userAnswer=[]
+	var userClicks=[]
+
+
+	var squares= d3.select('svg').append("g")
+
+	squares.selectAll('rect')
+		.data(rects)
+		.enter()
+	  	.append('rect')
+	  	.attr("id",function(d,i){
+	  		return d
+	  	})
+	  	.attr("x",function(d,i){
+	  		return ((d%3)+1)*100
+	  	})
+	  	.attr("y",function(d,i){
+	  		return Math.floor(d/3)*100
+	  	})
+	  	.attr("width",100)
+	  	.attr("height",100)
+	  	.attr("fill","white")
+	  	.style("stroke","black")
+	  	.style("stroke-width", 0.5)
+	  	.on("click",function(d,i){
+	  		var circle=document.getElementById("c_"+d)
+	  		console.log("circle is ",circle)
+	  		if (circle.style.display=="none"){
+	  			circle.style.display="block"
+		  		userAnswer.push(this.id)
+		  		console.log("id is ",this.id)
+		  		console.log("userAnswer is ",userAnswer)
+		  		var click=[]
+		  		click.push(this.id,Date.now(),"select")
+		  		userClicks.push(click)
+	  		}
+	  		else if (circle.style.display=="block"){
+	  			circle.style.display="none"
+	  			var elementInd=userAnswer.indexOf(this.id)
+	  			userAnswer.splice(elementInd,1)
+	  			console.log("elementInd is ",elementInd)
+	  			console.log("id is ",this.id)
+		  		console.log("userAnswer is ",userAnswer)
+		  		var click=[]
+		  		click.push(this.id,Date.now(),"unselect")
+		  		userClicks.push(click)
+	  		}
+	  	})
+
+	squares.selectAll('circle')
+		.data(rects)
+		.enter()
+		.append("circle")
+	  	.attr("id",function(d,i){
+	  		return "c_"+d
+	  	})
+	  	.attr("cx",function(d,i){
+	  		return ((d%3)+1)*100 + 50
+	  	})
+	  	.attr("cy",function(d,i){
+	  		return Math.floor(d/3)*100 + 50
+	  	})
+	  	.attr("r",15)
+	  	.style("display","none")
+	  	.on("click",function(d,i){
+	  		var circle=this
+	  		if (circle.style.display=="none"){
+	  			circle.style.display="block"
+		  		userAnswer.push(d)
+		  		console.log("id is ",d)
+		  		console.log("userAnswer is ",userAnswer)
+		  		var click=[]
+		  		click.push(d,Date.now(),"select")
+		  		userClicks.push(click)
+	  		}
+	  		else if (circle.style.display=="block"){
+	  			circle.style.display="none"
+	  			var elementInd=userAnswer.indexOf(d)
+	  			userAnswer.splice(elementInd,1)
+	  			console.log("elementInd is ",elementInd)
+		  		console.log("id is ",d)
+		  		console.log("userAnswer is ",userAnswer)
+		  		var click=[]
+		  		click.push(d,Date.now(),"unselect")
+		  		userClicks.push(click)
+	  		}
+	  	})
+
+
+	d3.select('#start').on('click', function(){
+		console.log(userAnswer.length)
+		if (userAnswer.length !=4){
+			console.log("length is not 4")
+			document.getElementById('answer_question').style.display="block"
+			document.getElementById('start').style.display="block"
+		}
+		else{
+			console.log("userAnswer is ",userAnswer)
+			let checker = (arr1, arr2) => arr2.every(v => arr1.includes(v));
+			arrEqual=checker(dots,userAnswer)
+			console.log("arrEqual is is ",arrEqual)
+			if (arrEqual){
+				console.log("loadTaskCorrect")
+				data['practice_loadTaskCorrect']=1
+			}
+			else{
+				console.log("loadTaskIncorrect")
+				data['practice_loadTaskCorrect']=0
+			}
+			data['practice_dot_correct']=dots
+			data['practice_dot_final']=userAnswer
+			data['pratice_dot_clicks']=userClicks
+			experimentr.addData(data)
+			console.log("DATA IS ",experimentr.getData())
+			experimentr.endTimer('practice_dot_pattern')
+			experimentr.next()
+
+		}
+
+	});
+
+
+
+}
+
+drawTest()
+
+experimentr.hideNext();
+
+</script>
